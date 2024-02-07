@@ -1,6 +1,22 @@
+"use client";
+
+import { useRecoilState } from "recoil";
 import { ModeToggle } from "./mode-toggle";
+import { authState } from "@/atoms/auth";
+import { NFIDProvider, signIn } from "@junobuild/core-peer";
 
 export function SiteHeader() {
+  const [auth, setAuth] = useRecoilState(authState);
+
+  async function handleLogin() {
+    await signIn({
+      provider: new NFIDProvider({
+        appName: "paste.digital",
+        logoUrl: "https://somewhere.com/your_logo.png",
+      }),
+    });
+  }
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center">
@@ -21,7 +37,23 @@ export function SiteHeader() {
           </nav>
         </div>
         <div className="flex flex-1 items-center space-x-2 justify-end">
-          <nav className="flex items-center">
+          <nav className="flex items-center gap-4">
+            {auth ? (
+              <button
+                className="transition-colors hover:text-foreground text-foreground/80"
+                onClick={() => setAuth(null)}
+              >
+                Log out
+              </button>
+            ) : (
+              <button
+                className="transition-colors hover:text-foreground text-foreground/80"
+                onClick={handleLogin}
+              >
+                Authenicate
+                <span className="ml-2">🔑</span>
+              </button>
+            )}
             <ModeToggle />
           </nav>
         </div>

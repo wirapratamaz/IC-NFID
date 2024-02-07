@@ -16,17 +16,22 @@ import {
 import { authState } from "@/atoms/auth";
 import { ThemeProviderProps } from "next-themes/dist/types";
 import { ThemeProvider } from "next-themes";
+import { Profile } from "@/atoms/profile";
 
 function JunoAuthProvider({ children }: ProvidersProps) {
   const [user, setUser] = useRecoilState(authState);
+  const [profile, setProfile] = useState<Profile | null>(null);
 
   useEffect(() => {
     const unsubscribe = authSubscribe((user: User | null) => {
       setUser(user);
+      console.log("got user", user);
     });
 
     return unsubscribe;
   }, []);
+
+  useEffect(() => {});
 
   return <>{children}</>;
 }
