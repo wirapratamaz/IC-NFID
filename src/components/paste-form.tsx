@@ -33,11 +33,6 @@ import { toast } from "@/components/ui/use-toast";
 
 import { Input } from "@/components/ui/input";
 
-const formSchema = z.object({
-  title: z.string().max(50),
-  language: z.string().optional(),
-});
-
 import {
   Card,
   CardContent,
@@ -49,6 +44,11 @@ import {
 import { LANGUAGE_OPTS } from "@/lib/constants";
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
+
+const formSchema = z.object({
+  title: z.string().max(50),
+  language: z.string().optional(),
+});
 
 function renderTitleInput(form: UseFormReturn<z.infer<typeof formSchema>>) {
   return (
