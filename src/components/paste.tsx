@@ -15,7 +15,7 @@ export function Paste() {
     <Card className="w-[800px]">
       <CardHeader>
         <CardTitle>Paste #12312412</CardTitle>
-        <CardDescription>Created 7 years ago</CardDescription>
+        <CardDescription>Created just now</CardDescription>
       </CardHeader>
       <CardContent>
         <Editor
@@ -23,7 +23,9 @@ export function Paste() {
           theme="vs-dark"
           className="rounded-md"
           defaultLanguage="javascript"
-          defaultValue={"console.log('Hello, world!');\n\n\nclass Test {}"}
+          defaultValue={
+            "console.log('Hackaton ready! Cool shit is coming soon!');\n\n\n"
+          }
           options={{
             domReadOnly: true,
             readOnly: true,

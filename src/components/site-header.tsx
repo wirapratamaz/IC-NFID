@@ -7,7 +7,8 @@ export function SiteHeader() {
         <div className="mr-4 hidden md:flex">
           <a className="mr-6 flex items-center space-x-2" href="/">
             <span className="hidden font-bold sm:inline-block">
-              🍝 paste.digital
+              <span className="mr-2">📋</span>
+              paste.digital
             </span>
           </a>
           <nav className="flex items-center gap-6 text-sm">
