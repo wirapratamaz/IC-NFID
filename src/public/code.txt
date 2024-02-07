@@ -1,0 +1,9 @@
+import ReactMarkdown from "react-markdown";
+
+interface MarkdownRenderProps {
+  mdString: string;
+}
+
+export default function MarkdownRender({ mdString }: MarkdownRenderProps) {
+  return <ReactMarkdown>{mdString}</ReactMarkdown>;
+}
