@@ -1,3 +1,3 @@
-export function NewPage() {
-  return {};
+export default function NewPage() {
+  return <div>New</div>;
 }
