@@ -7,6 +7,7 @@ import {
   violet,
   pink,
   gray,
+  teal,
 } from "tailwindcss/colors";
 
 export const COLORS = [
@@ -14,10 +15,11 @@ export const COLORS = [
   ...[orange[100], orange[200], orange[300], orange[400], orange[500]],
   ...[yellow[100], yellow[200], yellow[300], yellow[400], yellow[500]],
   ...[emerald[100], emerald[200], emerald[300], emerald[400], emerald[500]],
+  ...[teal[100], teal[200], teal[300], teal[400], teal[500]],
   ...[sky[100], sky[200], sky[300], sky[400], sky[500]],
   ...[violet[100], violet[200], violet[300], violet[400], violet[500]],
   ...[pink[100], pink[200], pink[300], pink[400], pink[500]],
-  ...[gray[100], gray[200], gray[300], gray[400], gray[500]],
+  // ...[gray[100], gray[200], gray[300], gray[400], gray[500]],
 ];
 
 export const DARK_COLORS = [

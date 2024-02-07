@@ -20,7 +20,7 @@ export default function useBackground(color?: string) {
       document.body.style.backgroundColor = color;
     } else {
       document.body.style.backgroundColor =
-        theme === "dark" ? getRandomDarkColor() : getRandomColor();
+        theme === "dark" ? "#000000" : getRandomColor();
     }
   }, [color, theme]);
 }
