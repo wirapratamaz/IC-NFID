@@ -6,6 +6,7 @@ import { GeistMono } from "geist/font/mono";
 import { SiteHeader } from "@/components/site-header";
 import React from "react";
 import Providers from "@/components/providers";
+import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -35,6 +36,7 @@ export default function RootLayout({
             <main className="relative py-6 lg:gap-10 lg:py-8 mx-auto">
               {children}
             </main>
+            <Toaster />
           </div>
         </Providers>
       </body>

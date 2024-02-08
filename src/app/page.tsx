@@ -1,16 +1,18 @@
 "use client";
 
+import { profileState } from "@/atoms/profile";
 import { Paste } from "@/components/paste-form";
 import WelcomePanel from "@/components/welcome-panel";
 import useBackground from "@/hooks/use-background";
-import Image from "next/image";
+import { useRecoilState } from "recoil";
 
 export default function Home() {
-  useBackground();
+  const [profile, setProfile] = useRecoilState(profileState);
+  useBackground(profile?.color);
 
   return (
     <div>
-      <WelcomePanel></WelcomePanel>
+      {/* <WelcomePanel></WelcomePanel> */}
       <Paste></Paste>
     </div>
   );

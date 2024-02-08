@@ -17,7 +17,7 @@ import {
 import { authState } from "@/atoms/auth";
 import { ThemeProviderProps } from "next-themes/dist/types";
 import { ThemeProvider } from "next-themes";
-import { Profile, profileState } from "@/atoms/profile";
+import { Profile, fetchProfile, profileState } from "@/atoms/profile";
 import { redirect } from "next/dist/server/api-utils";
 import { useRouter } from "next/navigation";
 import { set } from "zod";
@@ -29,15 +29,10 @@ function JunoAuthProvider({ children }: ProvidersProps) {
 
   useEffect(() => {
     async function fetchProfileAndRedirect(u: User) {
-      const _profile = await getDoc<Profile>({
-        collection: "profiles",
-        key: u.key,
-      });
-
-      console.log("fetched profile:", _profile);
+      const _profile = await fetchProfile(u.key);
 
       if (!_profile) {
-        router.push("/profile");
+        router.push("/profile?new=true");
       } else {
         setProfile(_profile.data);
       }
