@@ -23,6 +23,7 @@ import { profileState } from "@/atoms/profile";
 import { authState } from "@/atoms/auth";
 import { NFIDProvider, signIn, signOut } from "@junobuild/core-peer";
 import { useRouter } from "next/navigation";
+import { Avatar } from "./avatar";
 
 export function MainMenuToggle() {
   const { setTheme } = useTheme();
@@ -44,11 +45,7 @@ export function MainMenuToggle() {
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="icon">
           {profile ? (
-            <div
-              className="w-8 h-8 rounded-md"
-              dangerouslySetInnerHTML={{ __html: profile.avatarSvg }}
-              style={{ backgroundColor: profile.color }}
-            ></div>
+            <Avatar profile={profile} />
           ) : (
             <span className="text-xl">🚪</span>
           )}

@@ -26,9 +26,18 @@ export default function WelcomePanel() {
             Developed on sunny Bali island by{" "}
             <a
               href="https://github.com/CodingFu"
+              target="_blank"
               className="text-indigo-500 underline underline-offset-4"
             >
               @CodingFu
+            </a>{" "}
+            and{" "}
+            <a
+              href="https://bridge23.tech/"
+              target="_blank"
+              className="text-indigo-500 underline underline-offset-4"
+            >
+              bridge23
             </a>
           </p>
         </div>

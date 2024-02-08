@@ -9,7 +9,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRecoilState } from "recoil";
 import { z } from "zod";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import {
   Form,
   FormControl,
@@ -18,14 +18,14 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "./ui/form";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
+} from "../ui/form";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { getDoc, setDoc } from "@junobuild/core-peer";
-import { Textarea } from "./ui/textarea";
+import { Textarea } from "../ui/textarea";
 import { create } from "domain";
-import { useToast } from "./ui/use-toast";
+import { useToast } from "../ui/use-toast";
 
 type Props = {
   profile: Profile | null;
@@ -162,7 +162,7 @@ export function ProfileForm({ profile, authKey }: Props) {
               {saving ? (
                 <>
                   <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
-                  Please wait
+                  Saving...
                 </>
               ) : (
                 <>

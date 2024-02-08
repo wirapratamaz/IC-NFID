@@ -1,6 +1,7 @@
 "use client";
+
 import Editor from "@monaco-editor/react";
-import { z } from "zod";
+import { set, z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UseFormReturn, useForm } from "react-hook-form";
 import { cn } from "@/lib/utils";
@@ -29,7 +30,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { toast } from "@/components/ui/use-toast";
+import { toast, useToast } from "@/components/ui/use-toast";
 
 import { Input } from "@/components/ui/input";
 
@@ -40,17 +41,23 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "./ui/card";
+} from "../ui/card";
 import { LANGUAGE_OPTS } from "@/lib/constants";
-import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
+import { CaretSortIcon, CheckIcon, ReloadIcon } from "@radix-ui/react-icons";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
+import { use, useState } from "react";
+import { createPaste } from "@/atoms/paste";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   title: z.string().max(50),
-  language: z.string().optional(),
+  language: z.string(),
 });
 
-function renderTitleInput(form: UseFormReturn<z.infer<typeof formSchema>>) {
+function renderTitleInput(
+  form: UseFormReturn<z.infer<typeof formSchema>>,
+  saving: boolean
+) {
   return (
     <FormField
       control={form.control}
@@ -59,7 +66,11 @@ function renderTitleInput(form: UseFormReturn<z.infer<typeof formSchema>>) {
         <FormItem>
           <FormLabel>Title</FormLabel>
           <FormControl>
-            <Input placeholder="My spaghetti code" {...field} />
+            <Input
+              placeholder="My spaghetti code"
+              disabled={saving}
+              {...field}
+            />
           </FormControl>
           <FormDescription>You can leave it blank</FormDescription>
           <FormMessage />
@@ -70,7 +81,8 @@ function renderTitleInput(form: UseFormReturn<z.infer<typeof formSchema>>) {
 }
 
 function renderLanguageDropdown(
-  form: UseFormReturn<z.infer<typeof formSchema>>
+  form: UseFormReturn<z.infer<typeof formSchema>>,
+  saving: boolean
 ) {
   return (
     <FormField
@@ -80,7 +92,7 @@ function renderLanguageDropdown(
         <FormItem className="flex flex-col">
           <FormLabel>Language</FormLabel>
           <Popover>
-            <PopoverTrigger asChild>
+            <PopoverTrigger asChild disabled={saving}>
               <FormControl>
                 <Button
                   variant="outline"
@@ -89,6 +101,7 @@ function renderLanguageDropdown(
                     "w-[200px] justify-between",
                     !field.value && "text-muted-foreground"
                   )}
+                  disabled={saving}
                 >
                   {field.value
                     ? LANGUAGE_OPTS.find(
@@ -137,7 +150,13 @@ function renderLanguageDropdown(
   );
 }
 
-export function Paste() {
+export function PasteForm() {
+  const { toast } = useToast();
+  const router = useRouter();
+
+  const [code, setCode] = useState("");
+  const [saving, setSaving] = useState(false);
+
   const { theme } = useTheme();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -148,10 +167,32 @@ export function Paste() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!code) {
+      return toast({
+        title: "Please enter some code or text! 🤔",
+        variant: "destructive",
+      });
+    }
+    setSaving(true);
+    try {
+      const createdPaste = await createPaste({ ...values, content: code });
+      if (!createdPaste) {
+        throw new Error("Failed to save paste");
+      }
+
+      toast({
+        title: "Paste saved successfully! 🎉",
+      });
+      router.push(`/?p=${createdPaste.key}`);
+    } catch (e) {
+      console.error(e);
+      toast({
+        title: "Error saving paste 😢. Try again",
+        variant: "destructive",
+      });
+    }
+    setSaving(false);
   }
 
   return (
@@ -163,8 +204,8 @@ export function Paste() {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="flex flex-col gap-4">
-              {renderTitleInput(form)}
-              {renderLanguageDropdown(form)}
+              {renderTitleInput(form, saving)}
+              {renderLanguageDropdown(form, saving)}
               <FormItem>
                 <FormLabel>Your code (or top secret message 🤐)</FormLabel>
                 <div className="border rounded-md">
@@ -173,6 +214,9 @@ export function Paste() {
                     className="rounded-md"
                     defaultLanguage="ruby"
                     theme={theme == "dark" ? "vs-dark" : "vs-light"}
+                    onChange={(value) => {
+                      setCode(value as string);
+                    }}
                     options={{
                       domReadOnly: true,
                       minimap: { enabled: false },
@@ -181,6 +225,7 @@ export function Paste() {
                       roundedSelection: false,
                       fontSize: 14,
                       tabSize: 2,
+                      readOnly: saving,
                     }}
                   />
                 </div>
@@ -190,8 +235,17 @@ export function Paste() {
                 you will not be able to edit or delete it later.
               </FormDescription>
             </div>
-            <Button type="submit" className="w-full">
-              🚀 Publish unstoppable paste!
+            <Button type="submit" className="w-full" disabled={saving}>
+              {saving ? (
+                <>
+                  <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <span className="mr-2">🚀</span> Publish unstoppable paste!
+                </>
+              )}
             </Button>
           </form>
         </Form>

@@ -6,7 +6,7 @@ import { fetchProfile, profileState } from "@/atoms/profile";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import useBackground from "@/hooks/use-background";
-import { ProfileForm } from "@/components/profile-form";
+import { ProfileForm } from "@/components/forms/profile-form";
 import { Loading } from "@/components/loading";
 
 export default function ProfilePage() {

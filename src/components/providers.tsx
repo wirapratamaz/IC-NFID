@@ -15,12 +15,9 @@ import {
   getDoc,
 } from "@junobuild/core-peer";
 import { authState } from "@/atoms/auth";
-import { ThemeProviderProps } from "next-themes/dist/types";
 import { ThemeProvider } from "next-themes";
 import { Profile, fetchProfile, profileState } from "@/atoms/profile";
-import { redirect } from "next/dist/server/api-utils";
 import { useRouter } from "next/navigation";
-import { set } from "zod";
 
 function JunoAuthProvider({ children }: ProvidersProps) {
   const [user, setUser] = useRecoilState(authState);
@@ -56,12 +53,19 @@ function JunoAuthProvider({ children }: ProvidersProps) {
 }
 
 export default function Providers({ children }: ProvidersProps) {
+  const [initialized, setInitialized] = useState(false);
+
   useEffect(() => {
     (async () =>
       await initJuno({
         satelliteId: "rluun-eqaaa-aaaal-adrsa-cai",
       }))();
+    setInitialized(true);
   }, []);
+
+  if (!initialized) {
+    return;
+  }
 
   return (
     <RecoilRoot>
