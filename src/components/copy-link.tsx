@@ -18,7 +18,7 @@ export function CopyLink() {
   };
 
   return (
-    <Button className="w-32" onClick={() => handleCopy()}>
+    <Button className="w-32" onClick={() => handleCopy()} disabled={copied}>
       {copied ? (
         "Copied!"
       ) : (

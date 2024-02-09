@@ -29,7 +29,7 @@ export function PasteCard({ paste, ownerProfile }: PasteProps) {
       <CardHeader>
         <CardTitle>
           <div className="w-full flex items-center justify-between gap-4">
-            <h1>{paste.title}</h1>
+            <h1>{paste.title || "Untitled Paste"}</h1>
             <CopyLink />
           </div>
         </CardTitle>
@@ -54,12 +54,17 @@ export function PasteCard({ paste, ownerProfile }: PasteProps) {
         />
       </CardContent>
       <CardFooter>
-        {ownerProfile && (
-          <div className="flex flex-row items-center">
-            <Avatar profile={ownerProfile} />
-            <strong className="ml-2">@{ownerProfile.username}</strong>
-          </div>
-        )}
+        <div className="flex flex-row items-center gap-2 text-foreground/80">
+          <span>Published by:</span>
+          {ownerProfile ? (
+            <>
+              <Avatar profile={ownerProfile} />
+              <strong>@{ownerProfile.username}</strong>
+            </>
+          ) : (
+            <>Anonymous</>
+          )}
+        </div>
       </CardFooter>
     </Card>
   );

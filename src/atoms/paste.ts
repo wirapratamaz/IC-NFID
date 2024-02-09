@@ -24,12 +24,16 @@ export async function fetchPaste(id: string): Promise<Doc<Paste> | null> {
   return _paste ? _paste : null;
 }
 
-export async function createPaste(data: Paste): Promise<Doc<Paste>> {
+export async function createPaste(
+  data: Paste,
+  description: string
+): Promise<Doc<Paste>> {
   const key = nanoid();
   const doc = await setDoc<Paste>({
     collection: PASTES_COLLECTION,
     doc: {
       key,
+      description,
       data,
     },
   });

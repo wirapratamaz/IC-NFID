@@ -48,6 +48,8 @@ import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { use, useState } from "react";
 import { createPaste } from "@/atoms/paste";
 import { useRouter } from "next/navigation";
+import { useRecoilState } from "recoil";
+import { profileState } from "@/atoms/profile";
 
 const formSchema = z.object({
   title: z.string().max(50),
@@ -153,6 +155,7 @@ function renderLanguageDropdown(
 export function PasteForm() {
   const { toast } = useToast();
   const router = useRouter();
+  const [profile, setProfile] = useRecoilState(profileState);
 
   const [code, setCode] = useState("");
   const [saving, setSaving] = useState(false);
@@ -176,7 +179,10 @@ export function PasteForm() {
     }
     setSaving(true);
     try {
-      const createdPaste = await createPaste({ ...values, content: code });
+      const createdPaste = await createPaste(
+        { ...values, content: code },
+        profile?.username ? `@${profile.username}` : "anonymous"
+      );
       if (!createdPaste) {
         throw new Error("Failed to save paste");
       }
@@ -230,10 +236,12 @@ export function PasteForm() {
                   />
                 </div>
               </FormItem>
-              <FormDescription>
-                You are not logged in. that means your paste will be public and
-                you will not be able to edit or delete it later.
-              </FormDescription>
+              {!profile && (
+                <FormDescription>
+                  You are not logged in. that means your paste will be public
+                  and you will not be able to edit or delete it later.
+                </FormDescription>
+              )}
             </div>
             <Button type="submit" className="w-full" disabled={saving}>
               {saving ? (
