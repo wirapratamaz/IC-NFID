@@ -1,11 +1,11 @@
 "use client";
 
-import Editor from "@monaco-editor/react";
 import { set, z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UseFormReturn, useForm } from "react-hook-form";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
+import CodeEditor from "@uiw/react-textarea-code-editor";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -45,7 +45,7 @@ import {
 import { LANGUAGE_OPTS } from "@/lib/constants";
 import { CaretSortIcon, CheckIcon, ReloadIcon } from "@radix-ui/react-icons";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
-import { use, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { createPaste } from "@/atoms/paste";
 import { useRouter } from "next/navigation";
 import { useRecoilState } from "recoil";
@@ -170,6 +170,8 @@ export function PasteForm() {
     },
   });
 
+  const language = form.watch("language");
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!code) {
       return toast({
@@ -215,23 +217,17 @@ export function PasteForm() {
               <FormItem>
                 <FormLabel>Your code (or top secret message 🤐)</FormLabel>
                 <div className="border rounded-md">
-                  <Editor
-                    height={200}
-                    className="rounded-md"
-                    defaultLanguage="ruby"
-                    theme={theme == "dark" ? "vs-dark" : "vs-light"}
-                    onChange={(value) => {
-                      setCode(value as string);
-                    }}
-                    options={{
-                      domReadOnly: true,
-                      minimap: { enabled: false },
-                      formatOnType: true,
-                      scrollBeyondLastLine: false,
-                      roundedSelection: false,
-                      fontSize: 14,
-                      tabSize: 2,
-                      readOnly: saving,
+                  <CodeEditor
+                    value={code}
+                    language={language}
+                    onChange={(e) => setCode(e.target.value)}
+                    padding={15}
+                    data-color-mode={theme === "dark" ? "dark" : "light"}
+                    readOnly={saving}
+                    style={{
+                      borderRadius: "5px",
+                      background: "transparent",
+                      fontFamily: "monospace",
                     }}
                   />
                 </div>

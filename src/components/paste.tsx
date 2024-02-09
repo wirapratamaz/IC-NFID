@@ -1,6 +1,6 @@
 "use client";
 
-import Editor from "@monaco-editor/react";
+import CodeEditor from "@uiw/react-textarea-code-editor";
 import { useTheme } from "next-themes";
 
 import {
@@ -35,23 +35,20 @@ export function PasteCard({ paste, ownerProfile }: PasteProps) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <Editor
-          height={200}
-          className="rounded-md"
-          defaultLanguage={paste.language}
-          theme={theme == "dark" ? "vs-dark" : "vs-light"}
-          value={paste.content}
-          options={{
-            domReadOnly: true,
-            minimap: { enabled: false },
-            formatOnType: true,
-            scrollBeyondLastLine: false,
-            roundedSelection: false,
-            fontSize: 14,
-            tabSize: 2,
-            readOnly: true,
-          }}
-        />
+        <div className="border rounded-md">
+          <CodeEditor
+            value={paste.content}
+            language={paste.language}
+            padding={15}
+            data-color-mode={theme === "dark" ? "dark" : "light"}
+            readOnly={true}
+            style={{
+              borderRadius: "5px",
+              background: "transparent",
+              fontFamily: "monospace",
+            }}
+          />
+        </div>
       </CardContent>
       <CardFooter>
         <div className="flex flex-row items-center gap-2 text-foreground/80">
