@@ -56,10 +56,11 @@ const formSchema = z.object({
   language: z.string(),
 });
 
-function renderTitleInput(
-  form: UseFormReturn<z.infer<typeof formSchema>>,
-  saving: boolean
-) {
+type TitleInputProps = {
+  form: UseFormReturn<z.infer<typeof formSchema>>;
+  saving: boolean;
+};
+function TitleInput({ form, saving }: TitleInputProps) {
   return (
     <FormField
       control={form.control}
@@ -82,10 +83,14 @@ function renderTitleInput(
   );
 }
 
-function renderLanguageDropdown(
-  form: UseFormReturn<z.infer<typeof formSchema>>,
-  saving: boolean
-) {
+type LanguageProps = {
+  form: UseFormReturn<z.infer<typeof formSchema>>;
+  saving: boolean;
+};
+
+function LanguageDropdown({ form, saving }: LanguageProps) {
+  const [popoverOpen, setPopoverOpen] = useState(false);
+
   return (
     <FormField
       control={form.control}
@@ -93,7 +98,7 @@ function renderLanguageDropdown(
       render={({ field }) => (
         <FormItem className="flex flex-col">
           <FormLabel>Language</FormLabel>
-          <Popover>
+          <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
             <PopoverTrigger asChild disabled={saving}>
               <FormControl>
                 <Button
@@ -121,13 +126,14 @@ function renderLanguageDropdown(
                   className="h-9"
                 />
                 <CommandEmpty>No framework found.</CommandEmpty>
-                <CommandGroup>
+                <CommandGroup className="max-h-64 overflow-scroll">
                   {LANGUAGE_OPTS.map((language) => (
                     <CommandItem
                       value={language.label}
                       key={language.value}
                       onSelect={() => {
                         form.setValue("language", language.value);
+                        setPopoverOpen(false);
                       }}
                     >
                       {language.label}
@@ -212,8 +218,8 @@ export function PasteForm() {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="flex flex-col gap-4">
-              {renderTitleInput(form, saving)}
-              {renderLanguageDropdown(form, saving)}
+              <TitleInput form={form} saving={saving} />
+              <LanguageDropdown form={form} saving={saving} />
               <FormItem>
                 <FormLabel>Your code (or top secret message 🤐)</FormLabel>
                 <div className="border rounded-md">
