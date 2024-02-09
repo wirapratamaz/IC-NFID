@@ -6,6 +6,7 @@ import { UseFormReturn, useForm } from "react-hook-form";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
 import CodeEditor from "@uiw/react-textarea-code-editor";
+import CryptoJS from "crypto-js";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -45,15 +46,18 @@ import {
 import { LANGUAGE_OPTS } from "@/lib/constants";
 import { CaretSortIcon, CheckIcon, ReloadIcon } from "@radix-ui/react-icons";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
-import { use, useEffect, useState } from "react";
+import { use, useEffect, useMemo, useState } from "react";
 import { createPaste } from "@/atoms/paste";
 import { useRouter } from "next/navigation";
 import { useRecoilState } from "recoil";
 import { profileState } from "@/atoms/profile";
+import { Checkbox } from "../ui/checkbox";
+import { Separator } from "../ui/separator";
 
 const formSchema = z.object({
   title: z.string().max(50),
   language: z.string(),
+  isEncrypted: z.boolean(),
 });
 
 type TitleInputProps = {
@@ -162,8 +166,10 @@ export function PasteForm() {
   const { toast } = useToast();
   const router = useRouter();
   const [profile, setProfile] = useRecoilState(profileState);
+  const cypherSeed = useMemo(() => Math.random().toString(36).substring(7), []);
 
   const [code, setCode] = useState("");
+  const [passcode, setPasscode] = useState("");
   const [saving, setSaving] = useState(false);
 
   const { theme } = useTheme();
@@ -173,10 +179,12 @@ export function PasteForm() {
     defaultValues: {
       title: "",
       language: "plaintext",
+      isEncrypted: false,
     },
   });
 
   const language = form.watch("language");
+  const isEncrypted = form.watch("isEncrypted");
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!code) {
@@ -185,10 +193,28 @@ export function PasteForm() {
         variant: "destructive",
       });
     }
+    if (values.isEncrypted && !passcode) {
+      return toast({
+        title: "Please enter a passcode to encrypt your message",
+        variant: "destructive",
+      });
+    }
+
     setSaving(true);
+
     try {
+      let content = code;
+
+      if (isEncrypted) {
+        content = CryptoJS.AES.encrypt(code, cypherSeed + passcode).toString();
+      }
+
       const createdPaste = await createPaste(
-        { ...values, content: code },
+        {
+          ...values,
+          content,
+          cypherSeed: isEncrypted ? cypherSeed : undefined,
+        },
         profile?.username ? `@${profile.username}` : "anonymous"
       );
       if (!createdPaste) {
@@ -238,13 +264,55 @@ export function PasteForm() {
                   />
                 </div>
               </FormItem>
-              {!profile && (
-                <FormDescription>
-                  You are not logged in. that means your paste will be public
-                  and you will not be able to edit or delete it later.
-                </FormDescription>
-              )}
+              <div className="mt-4">
+                <FormField
+                  control={form.control}
+                  name="isEncrypted"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex flex-row gap-2 items-center">
+                        <Checkbox
+                          id="encrypted"
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                        <label
+                          htmlFor="encrypted"
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          Encrypt my paste
+                        </label>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+                {isEncrypted && (
+                  <FormItem className="mt-4">
+                    <FormControl>
+                      <Input
+                        type="text"
+                        value={passcode}
+                        placeholder="Enter passcode to encrypt your message"
+                        className="font-mono"
+                        disabled={saving}
+                        onChange={(e) => setPasscode(e.target.value)}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Only code (secret message) content will be encrypted with
+                      AES algorithm.
+                    </FormDescription>
+                  </FormItem>
+                )}
+              </div>
             </div>
+            <Separator />
+            {!profile && (
+              <FormDescription className="mt-4">
+                You are not logged in. that means your paste will be public and
+                you will not be able to edit or delete it later.
+              </FormDescription>
+            )}
             <Button type="submit" className="w-full" disabled={saving}>
               {saving ? (
                 <>

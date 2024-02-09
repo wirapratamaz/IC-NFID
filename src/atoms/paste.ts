@@ -8,6 +8,8 @@ export type Paste = {
   title: string;
   language: string;
   content: string;
+  isEncrypted: boolean;
+  cypherSeed?: string;
 };
 
 export const pastState = atom({
