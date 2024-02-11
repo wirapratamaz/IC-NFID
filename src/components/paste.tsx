@@ -43,7 +43,7 @@ export function PasteCard({ paste, ownerProfile }: PasteProps) {
     try {
       content = bytes.toString(CryptoJS.enc.Utf8);
     } catch (e) {
-      content = "[DECRYPTED]";
+      content = "[ENCRYPTED]";
     }
   }
 
