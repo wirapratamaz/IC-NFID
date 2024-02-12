@@ -11,8 +11,8 @@ import { Toaster } from "@/components/ui/toaster";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Paste.digital",
-  description: "metafu@bridge23:/home/hackaton_entry$ rm -rf /",
+  title: "HoodFunt",
+  description: "is about the food hunt.",
 };
 
 export default function RootLayout({
@@ -25,15 +25,19 @@ export default function RootLayout({
       <head>
         <link
           rel="icon"
-          href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>"
+          href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍔</text></svg>"
         />
-        <title>paste.digital</title>
+        <title>HoodFunt.</title>
+        <link
+          href="https://api.mapbox.com/mapbox-gl-js/v2.8.1/mapbox-gl.css"
+          rel="stylesheet"
+        />
       </head>
       <body>
         <Providers>
           <div className="relative flex min-h-screen flex-col" style={{}}>
             <SiteHeader />
-            <main className="relative py-6 lg:gap-10 lg:py-8 mx-auto">
+            <main className="relative pb-6 lg:gap-10 lg:pb-8 mx-auto">
               {children}
             </main>
             <Toaster />

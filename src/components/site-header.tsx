@@ -16,23 +16,14 @@ export function SiteHeader() {
         <div className="mr-4 flex">
           <a className="mr-6 flex items-center space-x-2" href="/">
             <span className="font-bold inline-block">
-              <span className="mr-2">📋</span>
-              Paste.
+              <span className="mr-2">🍔</span>
+              HoodFunt.
             </span>
           </a>
           <nav className="flex items-center gap-6 text-sm"></nav>
         </div>
         <div className="flex flex-1 items-center space-x-2 justify-end">
           <nav className="flex items-center gap-4">
-            <Button
-              variant="secondary"
-              onClick={() => {
-                router.push("/new");
-              }}
-            >
-              <EnvelopeOpenIcon className="mr-2 h-4 w-4" />
-              Create Paste
-            </Button>
             <MainMenuToggle />
           </nav>
         </div>

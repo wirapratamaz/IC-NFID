@@ -2,7 +2,7 @@
 
 import { Paste, fetchPaste } from "@/atoms/paste";
 import { Profile, fetchProfile } from "@/atoms/profile";
-import { PasteCard } from "@/components/paste";
+import { HoodMap } from "@/components/hood-map";
 import WelcomePanel from "@/components/welcome-panel";
 import useBackground from "@/hooks/use-background";
 import { useRouter } from "next/navigation";
@@ -60,10 +60,7 @@ export default function NewPage() {
 
   return (
     <div>
-      {paste && <PasteCard paste={paste} ownerProfile={pasteOwnerProfile} />}
-      <div className="mt-8">
-        <WelcomePanel />
-      </div>
+      <HoodMap />
     </div>
   );
 }
