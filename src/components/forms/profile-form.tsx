@@ -30,6 +30,8 @@ import { useToast } from "../ui/use-toast";
 type Props = {
   profile: Profile | null;
   authKey: string;
+  timezone?: string;
+  currency?: string;
 };
 
 export function ProfileForm({ profile, authKey }: Props) {
@@ -94,6 +96,8 @@ export function ProfileForm({ profile, authKey }: Props) {
       .min(3, { message: "should be at least 3 characters long" })
       .max(15, { message: "should be <= 15 characters long" }),
     bio: z.string().max(160, { message: "should be <= 160 characters long" }),
+    timezone: z.string(), // Added 'timezone' property
+    currency: z.string(),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -101,6 +105,8 @@ export function ProfileForm({ profile, authKey }: Props) {
     defaultValues: {
       username: profile?.username ?? "",
       bio: profile?.bio ?? "",
+      timezone: profile?.timezone ?? "", // Added 'timezone' property
+      currency: profile?.currency ?? "",
     },
   });
 
@@ -153,6 +159,48 @@ export function ProfileForm({ profile, authKey }: Props) {
                   </FormControl>
                   <FormDescription>
                     A few words about yourself. You may leave it blank.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="timezone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Timezone</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="e.g., GMT+8"
+                      {...field}
+                      disabled={saving}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Please set your region timezone.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="currency"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Currency</FormLabel>
+                  <FormControl>
+                    <select {...field} disabled={saving}>
+                      <option value="USD">USD</option>
+                      <option value="IDR">IDR</option>
+                      <option value="AUD">AUD</option>
+                      <option value="JPY">AUD</option>
+                      <option value="SGD">AUD</option>
+                    </select>
+                  </FormControl>
+                  <FormDescription>
+                    Please set your currency.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

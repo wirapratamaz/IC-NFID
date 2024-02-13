@@ -8,6 +8,8 @@ export type Profile = {
   bio: string;
   avatarSvg: string;
   color: string;
+  timezone: string;
+  currency: string;
 };
 
 export const profileState = atom({
