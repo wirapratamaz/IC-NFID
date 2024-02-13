@@ -195,8 +195,8 @@ export function ProfileForm({ profile, authKey }: Props) {
                       <option value="USD">USD</option>
                       <option value="IDR">IDR</option>
                       <option value="AUD">AUD</option>
-                      <option value="JPY">AUD</option>
-                      <option value="SGD">AUD</option>
+                      <option value="JPY">JPY</option>
+                      <option value="SGD">SGD</option>
                     </select>
                   </FormControl>
                   <FormDescription>
