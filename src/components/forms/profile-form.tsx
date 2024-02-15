@@ -31,22 +31,21 @@ import {
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { ReloadIcon } from "@radix-ui/react-icons";
-import { getDoc, setDoc } from "@junobuild/core-peer";
 import { Textarea } from "../ui/textarea";
-import { create } from "domain";
 import { useToast } from "../ui/use-toast";
 
 type Props = {
   profile: Profile | null;
   authKey: string;
-  timezone?: string;
-  currency?: string;
 };
 
 export function ProfileForm({ profile, authKey }: Props) {
   const { toast } = useToast();
 
   const [, setProfile] = useRecoilState(profileState);
+
+  const timezoneOptions = ["est", "cst", "mst", "pst", "akst", "hst", "gmt", "cet", "eet", "west", "cat", "eat", "msk", "ist", "cst_china", "jst", "kst", "ist_indonesia", "awst", "acst", "aest", "nzst", "fjt", "art", "bot", "brt", "clt"];
+  const currencyOptions = ["USD", "IDR", "AUD", "JPY", "SGD"];
 
   const [backgroundColor, setBackgroundColor] = useState<string>(
     profile?.color || getRandomColor()
@@ -81,7 +80,7 @@ export function ProfileForm({ profile, authKey }: Props) {
     let newProfile: Profile = {
       ...data,
       avatarSvg,
-      color: backgroundColor,
+      color: backgroundColor
     };
 
     try {
@@ -105,8 +104,12 @@ export function ProfileForm({ profile, authKey }: Props) {
       .min(3, { message: "should be at least 3 characters long" })
       .max(15, { message: "should be <= 15 characters long" }),
     bio: z.string().max(160, { message: "should be <= 160 characters long" }),
-    timezone: z.string(), // Added 'timezone' property
-    currency: z.string(),
+    timezone: z.string().refine(value => timezoneOptions.includes(value), {
+      message: "Invalid timezone option",
+    }), 
+    currency: z.string().refine(value => currencyOptions.includes(value), {
+      message: "Invalid timezone option",
+    }), 
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -186,7 +189,7 @@ export function ProfileForm({ profile, authKey }: Props) {
                       render={({ field }) => (
                         <Select {...field}>
                           <SelectTrigger className="w-[280px]">
-                            <SelectValue value={field.value} placeholder="Select a timezone" style={{ color: 'black' }} />
+                          <SelectValue>{field.value}</SelectValue>
                           </SelectTrigger>
                           <SelectContent>
                             <SelectGroup>
@@ -266,7 +269,7 @@ export function ProfileForm({ profile, authKey }: Props) {
                       render={({ field }) => (
                         <Select {...field}>
                           <SelectTrigger className="w-[280px]">
-                            <SelectValue value={field.value} placeholder="Select a currency" />
+                          <SelectValue>{field.value || "Select a currency"}</SelectValue>
                           </SelectTrigger>
                           <SelectContent>
                             <SelectGroup>
