@@ -49,6 +49,11 @@ export async function fetchProfile(userKey: string): Promise<Doc<Profile> | null
  * @return {Profile} The profile data that was set.
  */
 export async function createOrUpdateProfile(authKey: string, data: Profile): Promise<Profile> {
+  // validate to check all set
+  if (!data.currency || !data.timezone){
+    throw new Error("Currency and Timezone are required");
+  }
+  
   try {
     const prevProfile = await fetchProfile(authKey);
 
@@ -62,9 +67,9 @@ export async function createOrUpdateProfile(authKey: string, data: Profile): Pro
       },
     });
 
-    return data;
+    return data as Profile;
   } catch (error) {
     console.error("Failed to create or update profile:", error);
-    return data;
+    throw data;
   }
 }

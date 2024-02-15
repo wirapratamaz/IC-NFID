@@ -6,7 +6,7 @@ import { openPeeps } from "@dicebear/collection";
 import { createAvatar } from "@dicebear/core";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, UseFormReturn } from "react-hook-form";
 import { useRecoilState } from "recoil";
 import { z } from "zod";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
@@ -39,13 +39,21 @@ type Props = {
   authKey: string;
 };
 
+const formSchema = z.object({
+  title: z.string().max(50),
+  language: z.string(),
+  isEncrypted: z.boolean(),
+});
+
 export function ProfileForm({ profile, authKey }: Props) {
   const { toast } = useToast();
 
   const [, setProfile] = useRecoilState(profileState);
-
-  const timezoneOptions = ["est", "cst", "mst", "pst", "akst", "hst", "gmt", "cet", "eet", "west", "cat", "eat", "msk", "ist", "cst_china", "jst", "kst", "ist_indonesia", "awst", "acst", "aest", "nzst", "fjt", "art", "bot", "brt", "clt"];
-  const currencyOptions = ["USD", "IDR", "AUD", "JPY", "SGD"];
+  
+  const [currencyOptions, setCurrencyOptions] = useState(["Pacific Standard Time (PST)", "Mountain Standard Time (MST)", "Central Standard Time (CST)", "Eastern Standard Time (EST)", "Alaska Standard Time (AKST)", "Hawaii Standard Time (HST)", "Greenwich Mean Time (GMT)", "Central European Time (CET)", "Eastern European Time (EET)", "Western European Summer Time (WEST)", "Central Africa Time (CAT)", "East Africa Time (EAT)", "Moscow Standard Time (MSK)", "Indian Standard Time (IST)", "China Standard Time (CST)", "Japan Standard Time (JST)", "Korea Standard Time (KST)", "Indonesia Central Time (ICT)", "Australian Western Standard Time (AWST)", "Australian Central Standard Time (ACST)", "Australian Eastern Standard Time (AEST)", "New Zealand Standard Time (NZST)", "Fiji Time (FJT)", "Argentina Time (ART)", "Bolivia Time (BOT)", "Brasília Time (BRT)", "Chile Standard Time (CLT)"]);
+  const [newCurrency, setNewCurrency] = useState<string>('');
+  const [timeZoneOptions, settimeZoneOptions] = useState(["USD", "IDR", "AUD", "JPY", "SGD"]);
+  const [newtimeZone, setNewtimeZone] = useState<string>('');
 
   const [backgroundColor, setBackgroundColor] = useState<string>(
     profile?.color || getRandomColor()
@@ -80,7 +88,8 @@ export function ProfileForm({ profile, authKey }: Props) {
     let newProfile: Profile = {
       ...data,
       avatarSvg,
-      color: backgroundColor
+      color: backgroundColor,
+      currency: data.currency,
     };
 
     try {
@@ -104,12 +113,12 @@ export function ProfileForm({ profile, authKey }: Props) {
       .min(3, { message: "should be at least 3 characters long" })
       .max(15, { message: "should be <= 15 characters long" }),
     bio: z.string().max(160, { message: "should be <= 160 characters long" }),
-    timezone: z.string().refine(value => timezoneOptions.includes(value), {
+    timezone: z.string().refine(value => timeZoneOptions.includes(value), {
       message: "Invalid timezone option",
-    }), 
+    }),
     currency: z.string().refine(value => currencyOptions.includes(value), {
       message: "Invalid timezone option",
-    }), 
+    }),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -189,61 +198,16 @@ export function ProfileForm({ profile, authKey }: Props) {
                       render={({ field }) => (
                         <Select {...field}>
                           <SelectTrigger className="w-[280px]">
-                          <SelectValue>{field.value}</SelectValue>
+                            <SelectValue>{field.value}</SelectValue>
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectGroup>
-                              <SelectLabel>North America</SelectLabel>
-                              <SelectItem value="est">Eastern Standard Time (EST)</SelectItem>
-                              <SelectItem value="cst">Central Standard Time (CST)</SelectItem>
-                              <SelectItem value="mst">Mountain Standard Time (MST)</SelectItem>
-                              <SelectItem value="pst">Pacific Standard Time (PST)</SelectItem>
-                              <SelectItem value="akst">Alaska Standard Time (AKST)</SelectItem>
-                              <SelectItem value="hst">Hawaii Standard Time (HST)</SelectItem>
-                            </SelectGroup>
-                            <SelectGroup>
-                              <SelectLabel>Europe & Africa</SelectLabel>
-                              <SelectItem value="gmt">Greenwich Mean Time (GMT)</SelectItem>
-                              <SelectItem value="cet">Central European Time (CET)</SelectItem>
-                              <SelectItem value="eet">Eastern European Time (EET)</SelectItem>
-                              <SelectItem value="west">
-                                Western European Summer Time (WEST)
-                              </SelectItem>
-                              <SelectItem value="cat">Central Africa Time (CAT)</SelectItem>
-                              <SelectItem value="eat">East Africa Time (EAT)</SelectItem>
-                            </SelectGroup>
-                            <SelectGroup>
-                              <SelectLabel>Asia</SelectLabel>
-                              <SelectItem value="msk">Moscow Time (MSK)</SelectItem>
-                              <SelectItem value="ist">India Standard Time (IST)</SelectItem>
-                              <SelectItem value="cst_china">China Standard Time (CST)</SelectItem>
-                              <SelectItem value="jst">Japan Standard Time (JST)</SelectItem>
-                              <SelectItem value="kst">Korea Standard Time (KST)</SelectItem>
-                              <SelectItem value="ist_indonesia">
-                                Indonesia Central Standard Time (WITA)
-                              </SelectItem>
-                            </SelectGroup>
-                            <SelectGroup>
-                              <SelectLabel>Australia & Pacific</SelectLabel>
-                              <SelectItem value="awst">
-                                Australian Western Standard Time (AWST)
-                              </SelectItem>
-                              <SelectItem value="acst">
-                                Australian Central Standard Time (ACST)
-                              </SelectItem>
-                              <SelectItem value="aest">
-                                Australian Eastern Standard Time (AEST)
-                              </SelectItem>
-                              <SelectItem value="nzst">New Zealand Standard Time (NZST)</SelectItem>
-                              <SelectItem value="fjt">Fiji Time (FJT)</SelectItem>
-                            </SelectGroup>
-                            <SelectGroup>
-                              <SelectLabel>South America</SelectLabel>
-                              <SelectItem value="art">Argentina Time (ART)</SelectItem>
-                              <SelectItem value="bot">Bolivia Time (BOT)</SelectItem>
-                              <SelectItem value="brt">Brasilia Time (BRT)</SelectItem>
-                              <SelectItem value="clt">Chile Standard Time (CLT)</SelectItem>
-                            </SelectGroup>
+                            {/* <SelectGroup>
+                              {timezoneOptions.map((timezone) => (
+                                <SelectItem key={timezone} value={timezone}>
+                                  {timezone}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup> */}
                           </SelectContent>
                         </Select>
                       )}
@@ -269,15 +233,15 @@ export function ProfileForm({ profile, authKey }: Props) {
                       render={({ field }) => (
                         <Select {...field}>
                           <SelectTrigger className="w-[280px]">
-                          <SelectValue>{field.value || "Select a currency"}</SelectValue>
+                            <SelectValue>{field.value || "Select a currency"}</SelectValue>
                           </SelectTrigger>
                           <SelectContent>
                             <SelectGroup>
-                              <SelectItem value="USD">USD</SelectItem>
-                              <SelectItem value="IDR">IDR</SelectItem>
-                              <SelectItem value="AUD">AUD</SelectItem>
-                              <SelectItem value="JPY">JPY</SelectItem>
-                              <SelectItem value="SGD">SGD</SelectItem>
+                              {currencyOptions.map((currency) => (
+                                <SelectItem key={currency} value={currency}>
+                                  {currency}
+                                </SelectItem>
+                              ))}
                             </SelectGroup>
                           </SelectContent>
                         </Select>
