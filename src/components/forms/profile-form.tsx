@@ -6,9 +6,10 @@ import { openPeeps } from "@dicebear/collection";
 import { createAvatar } from "@dicebear/core";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import { useForm, Controller, UseFormReturn } from "react-hook-form";
+import { useForm} from "react-hook-form";
 import { useRecoilState } from "recoil";
 import { z } from "zod";
+import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import {
   Form,
@@ -20,14 +21,17 @@ import {
   FormMessage,
 } from "../ui/form";
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "../ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "../ui/popover"
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { ReloadIcon } from "@radix-ui/react-icons";
@@ -39,21 +43,46 @@ type Props = {
   authKey: string;
 };
 
-const formSchema = z.object({
-  title: z.string().max(50),
-  language: z.string(),
-  isEncrypted: z.boolean(),
-});
-
 export function ProfileForm({ profile, authKey }: Props) {
   const { toast } = useToast();
 
   const [, setProfile] = useRecoilState(profileState);
-  
-  const [currencyOptions, setCurrencyOptions] = useState(["Pacific Standard Time (PST)", "Mountain Standard Time (MST)", "Central Standard Time (CST)", "Eastern Standard Time (EST)", "Alaska Standard Time (AKST)", "Hawaii Standard Time (HST)", "Greenwich Mean Time (GMT)", "Central European Time (CET)", "Eastern European Time (EET)", "Western European Summer Time (WEST)", "Central Africa Time (CAT)", "East Africa Time (EAT)", "Moscow Standard Time (MSK)", "Indian Standard Time (IST)", "China Standard Time (CST)", "Japan Standard Time (JST)", "Korea Standard Time (KST)", "Indonesia Central Time (ICT)", "Australian Western Standard Time (AWST)", "Australian Central Standard Time (ACST)", "Australian Eastern Standard Time (AEST)", "New Zealand Standard Time (NZST)", "Fiji Time (FJT)", "Argentina Time (ART)", "Bolivia Time (BOT)", "Brasília Time (BRT)", "Chile Standard Time (CLT)"]);
-  const [newCurrency, setNewCurrency] = useState<string>('');
-  const [timeZoneOptions, settimeZoneOptions] = useState(["USD", "IDR", "AUD", "JPY", "SGD"]);
-  const [newtimeZone, setNewtimeZone] = useState<string>('');
+
+  const currencies = [
+    { label: "USD", value: "usd" },
+    { label: "EUR", value: "eur" },
+    { label: "JPY", value: "jpy" },
+    { label: "IDR", value: "idr" },
+    { label: "AUD", value: "aud" },
+    { label: "CAD", value: "cad" },
+    { label: "CHF", value: "chf" },
+    { label: "CNY", value: "cny" },
+    { label: "SEK", value: "sek" },
+    { label: "NZD", value: "nzd" },
+    // Add more currencies as needed
+  ] as const;
+
+  const timezones = [
+    { label: 'Eastern Standard Time (EST)', value: 'est' },
+  { label: 'Central Standard Time (CST)', value: 'cst' },
+  { label: 'Mountain Standard Time (MST)', value: 'mst' },
+  { label: 'Pacific Standard Time (PST)', value: 'pst' },
+  { label: 'Alaska Standard Time (AKST)', value: 'akst' },
+  { label: 'Hawaii Standard Time (HST)', value: 'hst' },
+  { label: 'Greenwich Mean Time (GMT)', value: 'gmt' },
+  { label: 'Central European Time (CET)', value: 'cet' },
+  { label: 'Eastern European Time (EET)', value: 'eet' },
+  { label: 'Western European Summer Time (WEST)', value: 'west' },
+  { label: 'Central Africa Time (CAT)', value: 'cat' },
+  { label: 'East Africa Time (EAT)', value: 'eat' },
+  { label: 'Moscow Time (MSK)', value: 'msk' },
+  { label: 'India Standard Time (IST)', value: 'ist' },
+  { label: 'China Standard Time (CST)', value: 'cst_china' },
+  { label: 'Japan Standard Time (JST)', value: 'jst' },
+  { label: 'Korea Standard Time (KST)', value: 'kst' },
+  { label: 'Indonesia Central Standard Time (WITA)', value: 'ist_indonesia' },
+  { label: 'Australian Western Standard Time (AWST)', value: 'awst' }
+  ] as const
 
   const [backgroundColor, setBackgroundColor] = useState<string>(
     profile?.color || getRandomColor()
@@ -89,7 +118,6 @@ export function ProfileForm({ profile, authKey }: Props) {
       ...data,
       avatarSvg,
       color: backgroundColor,
-      currency: data.currency,
     };
 
     try {
@@ -113,11 +141,11 @@ export function ProfileForm({ profile, authKey }: Props) {
       .min(3, { message: "should be at least 3 characters long" })
       .max(15, { message: "should be <= 15 characters long" }),
     bio: z.string().max(160, { message: "should be <= 160 characters long" }),
-    timezone: z.string().refine(value => timeZoneOptions.includes(value), {
-      message: "Invalid timezone option",
+    currency: z.string({
+      required_error: "Currency is required",
     }),
-    currency: z.string().refine(value => currencyOptions.includes(value), {
-      message: "Invalid timezone option",
+    timezone: z.string({
+      required_error: "Timezone is required",
     }),
   });
 
@@ -126,8 +154,6 @@ export function ProfileForm({ profile, authKey }: Props) {
     defaultValues: {
       username: profile?.username ?? "",
       bio: profile?.bio ?? "",
-      timezone: profile?.timezone ?? "",
-      currency: profile?.currency ?? "",
     },
   });
 
@@ -185,71 +211,107 @@ export function ProfileForm({ profile, authKey }: Props) {
                 </FormItem>
               )}
             />
+            {/* Timezone Field */}
             <FormField
               control={form.control}
               name="timezone"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex flex-col">
                   <FormLabel>Timezone</FormLabel>
-                  <FormControl>
-                    <Controller
-                      control={form.control}
-                      name="timezone"
-                      render={({ field }) => (
-                        <Select {...field}>
-                          <SelectTrigger className="w-[280px]">
-                            <SelectValue>{field.value}</SelectValue>
-                          </SelectTrigger>
-                          <SelectContent>
-                            {/* <SelectGroup>
-                              {timezoneOptions.map((timezone) => (
-                                <SelectItem key={timezone} value={timezone}>
-                                  {timezone}
-                                </SelectItem>
-                              ))}
-                            </SelectGroup> */}
-                          </SelectContent>
-                        </Select>
-                      )}
-                    />
-                  </FormControl>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "w-[200px] justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? timezones.find(
+                              (timezone) => timezone.value === field.value
+                            )?.label
+                            : "Select timezone"}
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[200px] p-0 max-h-[200px] overflow-auto">
+                      <Command>
+                        <CommandInput placeholder="Search timezone..." />
+                        <CommandEmpty>No timezone found.</CommandEmpty>
+                        <CommandGroup>
+                          {timezones.map((timezone) => (
+                            <CommandItem
+                              value={timezone.label}
+                              key={timezone.value}
+                              onSelect={() => {
+                                form.setValue("timezone", timezone.value)
+                              }}
+                            >
+                              {timezone.label}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <FormDescription>
-                    Please set your region timezone.
+                    This is the timezone that will be used in the dashboard.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
+            {/* Currency Field */}
             <FormField
               control={form.control}
               name="currency"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex flex-col">
                   <FormLabel>Currency</FormLabel>
-                  <FormControl>
-                    <Controller
-                      control={form.control}
-                      name="currency"
-                      render={({ field }) => (
-                        <Select {...field}>
-                          <SelectTrigger className="w-[280px]">
-                            <SelectValue>{field.value || "Select a currency"}</SelectValue>
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectGroup>
-                              {currencyOptions.map((currency) => (
-                                <SelectItem key={currency} value={currency}>
-                                  {currency}
-                                </SelectItem>
-                              ))}
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
-                      )}
-                    />
-                  </FormControl>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "w-[200px] justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? currencies.find(
+                              (currency) => currency.value === field.value
+                            )?.label
+                            : "Select currency"}
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[200px] p-0">
+                      <Command>
+                        <CommandInput placeholder="Search currency..." />
+                        <CommandEmpty>No currency found.</CommandEmpty>
+                        <CommandGroup>
+                          {currencies.map((currency) => (
+                            <CommandItem
+                              value={currency.label}
+                              key={currency.value}
+                              onSelect={() => {
+                                form.setValue("currency", currency.value)
+                              }}
+                            >
+                              {currency.label}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <FormDescription>
-                    Please set your currency.
+                    This is the currency that will be used in the dashboard.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
