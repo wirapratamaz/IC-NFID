@@ -58,7 +58,7 @@ export default function Providers({ children }: ProvidersProps) {
   useEffect(() => {
     (async () =>
       await initJuno({
-        satelliteId: "rluun-eqaaa-aaaal-adrsa-cai",
+        satelliteId: "n5isd-iaaaa-aaaal-adtra-cai",
       }))();
     setInitialized(true);
   }, []);

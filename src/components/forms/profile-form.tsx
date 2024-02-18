@@ -6,9 +6,10 @@ import { openPeeps } from "@dicebear/collection";
 import { createAvatar } from "@dicebear/core";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm} from "react-hook-form";
 import { useRecoilState } from "recoil";
 import { z } from "zod";
+import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import {
   Form,
@@ -19,12 +20,22 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "../ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "../ui/popover"
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { ReloadIcon } from "@radix-ui/react-icons";
-import { getDoc, setDoc } from "@junobuild/core-peer";
 import { Textarea } from "../ui/textarea";
-import { create } from "domain";
 import { useToast } from "../ui/use-toast";
 
 type Props = {
@@ -36,6 +47,42 @@ export function ProfileForm({ profile, authKey }: Props) {
   const { toast } = useToast();
 
   const [, setProfile] = useRecoilState(profileState);
+
+  const currencies = [
+    { label: "USD", value: "usd" },
+    { label: "EUR", value: "eur" },
+    { label: "JPY", value: "jpy" },
+    { label: "IDR", value: "idr" },
+    { label: "AUD", value: "aud" },
+    { label: "CAD", value: "cad" },
+    { label: "CHF", value: "chf" },
+    { label: "CNY", value: "cny" },
+    { label: "SEK", value: "sek" },
+    { label: "NZD", value: "nzd" },
+    // Add more currencies as needed
+  ] as const;
+
+  const timezones = [
+    { label: 'Eastern Standard Time (EST)', value: 'est' },
+  { label: 'Central Standard Time (CST)', value: 'cst' },
+  { label: 'Mountain Standard Time (MST)', value: 'mst' },
+  { label: 'Pacific Standard Time (PST)', value: 'pst' },
+  { label: 'Alaska Standard Time (AKST)', value: 'akst' },
+  { label: 'Hawaii Standard Time (HST)', value: 'hst' },
+  { label: 'Greenwich Mean Time (GMT)', value: 'gmt' },
+  { label: 'Central European Time (CET)', value: 'cet' },
+  { label: 'Eastern European Time (EET)', value: 'eet' },
+  { label: 'Western European Summer Time (WEST)', value: 'west' },
+  { label: 'Central Africa Time (CAT)', value: 'cat' },
+  { label: 'East Africa Time (EAT)', value: 'eat' },
+  { label: 'Moscow Time (MSK)', value: 'msk' },
+  { label: 'India Standard Time (IST)', value: 'ist' },
+  { label: 'China Standard Time (CST)', value: 'cst_china' },
+  { label: 'Japan Standard Time (JST)', value: 'jst' },
+  { label: 'Korea Standard Time (KST)', value: 'kst' },
+  { label: 'Indonesia Central Standard Time (WITA)', value: 'ist_indonesia' },
+  { label: 'Australian Western Standard Time (AWST)', value: 'awst' }
+  ] as const
 
   const [backgroundColor, setBackgroundColor] = useState<string>(
     profile?.color || getRandomColor()
@@ -94,6 +141,12 @@ export function ProfileForm({ profile, authKey }: Props) {
       .min(3, { message: "should be at least 3 characters long" })
       .max(15, { message: "should be <= 15 characters long" }),
     bio: z.string().max(160, { message: "should be <= 160 characters long" }),
+    currency: z.string({
+      required_error: "Currency is required",
+    }),
+    timezone: z.string({
+      required_error: "Timezone is required",
+    }),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -153,6 +206,112 @@ export function ProfileForm({ profile, authKey }: Props) {
                   </FormControl>
                   <FormDescription>
                     A few words about yourself. You may leave it blank.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {/* Timezone Field */}
+            <FormField
+              control={form.control}
+              name="timezone"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Timezone</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl className="w-full">
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "w-full justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? timezones.find(
+                              (timezone) => timezone.value === field.value
+                            )?.label
+                            : "Select timezone"}
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0 max-h-[200px] overflow-auto">
+                      <Command>
+                        <CommandInput placeholder="Search timezone..." />
+                        <CommandEmpty>No timezone found.</CommandEmpty>
+                        <CommandGroup>
+                          {timezones.map((timezone) => (
+                            <CommandItem
+                              value={timezone.label}
+                              key={timezone.value}
+                              onSelect={() => {
+                                form.setValue("timezone", timezone.value)
+                              }}
+                            >
+                              {timezone.label}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <FormDescription>
+                    This is the timezone that will be used in the dashboard.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {/* Currency Field */}
+            <FormField
+              control={form.control}
+              name="currency"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Currency</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl className="w-full">
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "w-full justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? currencies.find(
+                              (currency) => currency.value === field.value
+                            )?.label
+                            : "Select currency"}
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[350px] p-0 max-h-[200px] overflow-auto">
+                      <Command>
+                        <CommandInput placeholder="Search currency..." />
+                        <CommandEmpty>No currency found.</CommandEmpty>
+                        <CommandGroup>
+                          {currencies.map((currency) => (
+                            <CommandItem
+                              value={currency.label}
+                              key={currency.value}
+                              onSelect={() => {
+                                form.setValue("currency", currency.value)
+                              }}
+                            >
+                              {currency.label}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <FormDescription>
+                    This is the currency that will be used in the dashboard.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
