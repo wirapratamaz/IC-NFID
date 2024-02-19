@@ -3,9 +3,7 @@
 import { useRecoilState } from "recoil";
 import { MainMenuToggle } from "./main-menu-toggle";
 import { authState } from "@/atoms/auth";
-import { profileState } from "@/atoms/profile";
 import { useRouter } from "next/navigation";
-import { Button } from "./ui/button";
 import { EnvelopeOpenIcon } from "@radix-ui/react-icons";
 
 export function SiteHeader() {
@@ -16,8 +14,8 @@ export function SiteHeader() {
         <div className="mr-4 flex">
           <a className="mr-6 flex items-center space-x-2" href="/">
             <span className="font-bold inline-block">
-              <span className="mr-2">🍔</span>
-              HoodFunt.
+              <span className="mr-2"></span>
+              NFID LOGIN ICP
             </span>
           </a>
           <nav className="flex items-center gap-6 text-sm"></nav>
