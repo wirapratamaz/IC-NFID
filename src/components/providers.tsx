@@ -38,7 +38,6 @@ export default function Providers({ children }: ProvidersProps) {
     <RecoilRoot>
       <ThemeProvider
         attribute="class"
-        defaultTheme="light"
         disableTransitionOnChange
       >
         <JunoAuthProvider>{children}</JunoAuthProvider>
