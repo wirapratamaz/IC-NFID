@@ -1,36 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
-import { useTheme } from "next-themes";
-
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuGroup,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuPortal,
-  DropdownMenuSubContent,
-} from "@/components/ui/dropdown-menu";
-import { useRecoilState } from "recoil";
-import { profileState } from "@/atoms/profile";
-import { authState } from "@/atoms/auth";
 import { NFIDProvider, signIn, signOut } from "@junobuild/core-peer";
-import { useRouter } from "next/navigation";
-import { Avatar } from "./avatar";
+
 
 export function MainMenuToggle() {
-  const { setTheme } = useTheme();
-  const [profile, setProfile] = useRecoilState(profileState);
-  const [user, setUser] = useRecoilState(authState);
-  const router = useRouter();
-
   async function handleLogin() {
     await signIn({
       provider: new NFIDProvider({
@@ -41,59 +15,25 @@ export function MainMenuToggle() {
   }
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon">
-          {profile ? (
-            <Avatar profile={profile} />
-          ) : (
-            <span className="text-xl">🚪</span>
-          )}
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        {profile ? (
-          <>
-            <DropdownMenuLabel>@{profile.username}</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => router.push("/profile")}>
-              Profile
-            </DropdownMenuItem>
-          </>
-        ) : (
-          <>
-            <DropdownMenuItem onClick={() => handleLogin()}>
-              Login / Register
-            </DropdownMenuItem>
-          </>
-        )}
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger>Theme</DropdownMenuSubTrigger>
-            <DropdownMenuPortal>
-              <DropdownMenuSubContent>
-                <DropdownMenuItem onClick={() => setTheme("light")}>
-                  Bright
-                  <span className="ml-2">🌈</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("dark")}>
-                  Dark
-                  <span className="ml-2">😈</span>
-                </DropdownMenuItem>
-              </DropdownMenuSubContent>
-            </DropdownMenuPortal>
-          </DropdownMenuSub>
-        </DropdownMenuGroup>
-
-        {user && (
-          <>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => signOut()}>
-              Logout
-            </DropdownMenuItem>
-          </>
-        )}
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
+      {
+        <button 
+          onClick={handleLogin} 
+          style={{ padding: '10px', borderRadius: '5px', cursor: 'pointer' }}
+        >
+          Login / Register
+        </button>
+      }
+      {
+        <button 
+          onClick={signOut} 
+          style={{ padding: '10px', borderRadius: '5px', cursor: 'pointer' }}
+        >
+          Logout
+        </button>
+      }
+    </div>
   );
 }
+
+export default MainMenuToggle;

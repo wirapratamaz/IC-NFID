@@ -6,12 +6,11 @@ import { GeistMono } from "geist/font/mono";
 import { SiteHeader } from "@/components/site-header";
 import React from "react";
 import Providers from "@/components/providers";
-import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "HoodFunt",
+  title: "Simple Login NFID ICP",
   description: "is about the food hunt.",
 };
 
@@ -23,15 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
       <head>
-        <link
-          rel="icon"
-          href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍔</text></svg>"
-        />
-        <title>HoodFunt.</title>
-        <link
-          href="https://api.mapbox.com/mapbox-gl-js/v2.8.1/mapbox-gl.css"
-          rel="stylesheet"
-        />
+        <title>Simple Login NFID ICP.</title>
       </head>
       <body>
         <Providers>
@@ -40,7 +31,6 @@ export default function RootLayout({
             <main className="relative pb-6 lg:gap-10 lg:pb-8 mx-auto">
               {children}
             </main>
-            <Toaster />
           </div>
         </Providers>
       </body>
